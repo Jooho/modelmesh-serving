@@ -135,6 +135,10 @@ func (r *ServiceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			if mms := r.MMServices.Get(namespace); mms != nil {
 				mms.Disconnect()
 				r.MMServices.Delete(namespace)
+				_, err2, requeue := r.reconcileService(ctx, mms, namespace, owner)
+				if err2 != nil || requeue {
+					err = err2
+				}
 			}
 			return ctrl.Result{}, err
 		}
@@ -226,6 +230,13 @@ func (r *ServiceReconciler) reconcileService(ctx context.Context, mms *mmesh.MMS
 	if err := r.List(ctx, sl, client.HasLabels{"modelmesh-service"}, client.InNamespace(namespace)); err != nil {
 		return nil, err, false
 	}
+
+	if len(sl.Items) == 0 {
+		r.ModelEventStream.RemoveWatchedService(serviceName, namespace)
+		r.Log.Info("Deleted Watched Service", "name", serviceName, "namespace", namespace)
+		return nil, nil, false
+	}
+
 	var s *corev1.Service
 	for i := range sl.Items {
 		ss := &sl.Items[i]
