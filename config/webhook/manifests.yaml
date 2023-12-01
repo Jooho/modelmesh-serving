@@ -19,7 +19,6 @@ webhooks:
   - admissionReviewVersions:
       - v1
     clientConfig:
-      caBundle: Cg==
       service:
         name: modelmesh-webhook-server-service
         path: /validate-serving-modelmesh-io-v1alpha1-servingruntime
