@@ -76,6 +76,13 @@ spec:
                 echo "secrets etcdpasswords and model-serving-etcd exist, doing nothing"
                 exit 0
               fi
+          resources: # ref: https://github.com/coreos/etcd-operator/blob/master/doc/user/spec_examples.md#three-member-cluster-with-resource-requirement
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 96Mi
       containers:
         - command:
             - etcd
